@@ -43,6 +43,7 @@ describe('Cart Store', () => {
     }
 
     expect(result.current.state.products).toHaveLength(2);
+    expect(result.current.state.open).toBe(true);
   });
 
   it('should not add same product twice', () => {
@@ -84,7 +85,7 @@ describe('Cart Store', () => {
     expect(result.current.state.products[0]).toEqual(product2);
   });
 
-  fit('should remove all products when clear cart button is clicked', async () => {
+  it('should remove all products when clear cart button is clicked', async () => {
     const products = server.createList('product', 2);
 
     act(() => {
