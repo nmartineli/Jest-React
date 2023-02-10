@@ -5,6 +5,10 @@ import { makeServer } from '../../miragejs/server';
 describe('Cart Store', () => {
   let server;
   let result;
+  let add;
+  let toggle;
+  let remove;
+  let removeAll;
 
   // preparar o hook para ser testado
   beforeEach(() => {
@@ -12,6 +16,8 @@ describe('Cart Store', () => {
     result = renderHook(() => useCartStore()).result;
     add = result.current.actions.add;
     toggle = result.current.actions.toggle;
+    remove = result.current.actions.remove;
+    removeAll = result.current.actions.removeAll;
   });
 
   //fecha o servidor e reseta o estado do hook
@@ -58,5 +64,53 @@ describe('Cart Store', () => {
     act(() => toggle());
     expect(result.current.state.open).toBe(false);
     expect(result.current.state.products).toHaveLength(0);
+  });
+
+  it('should remove a product from the store', () => {
+    const [product1, product2] = server.createList('product', 2);
+
+    act(() => {
+      add(product1);
+      add(product2);
+    });
+
+    expect(result.current.state.products).toHaveLength(2);
+
+    act(() => {
+      remove(product1);
+    });
+
+    expect(result.current.state.products).toHaveLength(1);
+    expect(result.current.state.products[0]).toEqual(product2);
+  });
+
+  fit('should remove all products when clear cart button is clicked', async () => {
+    const products = server.createList('product', 2);
+
+    act(() => {
+      for (const product of products) {
+        add(product);
+      }
+    });
+
+    expect(result.current.state.products).toHaveLength(2);
+
+    act(() => {
+      removeAll();
+    });
+
+    expect(result.current.state.products).toHaveLength(0);
+
+    //  await componentsAct(async () => {
+    //     render(<Cart />);
+
+    //     expect(screen.getAllByTestId('cart-item')).toHaveLength(2);
+
+    //     const button = screen.getByRole('button', { name: /clear cart/i });
+
+    //     await userEvent.click(button);
+
+    //     expect(screen.queryAllByTestId('cart-item')).toHaveLength(0);
+    //   });
   });
 });
