@@ -7,6 +7,8 @@ import userEvent from '@testing-library/user-event';
 import Cart from './cart';
 import TestRenderer from 'react-test-renderer';
 
+//este componente usa um hook então é necessário envolver o componente no método act da test renderer
+//components act quando tem interação do usuário com o hook
 const { act: componentsAct } = TestRenderer;
 
 setAutoFreeze(false);
@@ -63,6 +65,7 @@ describe('Cart', () => {
       expect(spy).toHaveBeenCalledTimes(2);
     });
   });
+
   it('should display 2 products cards', () => {
     const products = server.createList('product', 2);
 
@@ -75,5 +78,35 @@ describe('Cart', () => {
     render(<Cart />);
 
     expect(screen.getAllByTestId('cart-item')).toHaveLength(2);
+  });
+
+  it('should remove all products when clear cart button is clicked', async () => {
+    const products = server.createList('product', 2);
+
+    hooksAct(() => {
+      for (const product of products) {
+        add(product);
+      }
+    });
+
+    await componentsAct(async () => {
+      render(<Cart />);
+
+      expect(screen.getAllByTestId('cart-item')).toHaveLength(2);
+
+      const button = screen.getByRole('button', { name: /clear cart/i });
+
+      await userEvent.click(button);
+
+      expect(screen.queryAllByTestId('cart-item')).toHaveLength(0);
+    });
+  });
+
+  it('should not display clear cart button if no products are in the cart', async () => {
+    render(<Cart />);
+
+    expect(
+      screen.queryByRole('button', { name: /clear cart/i }),
+    ).not.toBeInTheDocument();
   });
 });

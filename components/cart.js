@@ -3,7 +3,7 @@ import { useCartStore } from '../store/cart';
 
 export default function Cart() {
   const { open, products } = useCartStore((store) => store.state);
-  const toggle = useCartStore((store) => store.actions.toggle);
+  const { toggle, removeAll } = useCartStore((store) => store.actions);
   const hasProducts = products.length > 0;
 
   return (
@@ -25,6 +25,7 @@ export default function Cart() {
           </button>
         ) : null}
         <button
+          data-testid="close-button"
           onClick={() => toggle()}
           className="text-gray-600 focus:outline-none"
         >
